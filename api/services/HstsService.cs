@@ -37,12 +37,20 @@ namespace Hsts {
             HttpResponseMessage response;
             try {
                 response = await GetHttpClient(followRedirects).GetAsync(uri);
+
+                if (response == null ) return hstsResult;
+
+                // If we follow the redirections, we might need to update the url accordingly
+                if (followRedirects == true) {
+                    uri = response?.RequestMessage?.RequestUri ?? uri;
+                    hstsResult.Url = uri.ToString();
+                }
             }
             catch(Exception) {
                 return hstsResult;
             }
             
-            if (!response.Headers.Contains(headerName)) {       
+            if (response != null && !response.Headers.Contains(headerName)) {       
                 hstsResult.Grade = HstsGrade.F;    
                 return hstsResult;
             }
@@ -51,7 +59,7 @@ namespace Hsts {
                 hstsResult.IncludeSubDomains = false; // will eventually be set to true later
                 hstsResult.Preload = false; // will eventually be set to true later
                 IEnumerable<string>? headersSts;
-                if (response.Headers.TryGetValues(headerName, out headersSts)) {
+                if (response != null && response.Headers.TryGetValues(headerName, out headersSts)) {
                     var headerValue = headersSts.FirstOrDefault(String.Empty);
                     foreach (var element in headerValue.Trim().Split(';')) {
                         string trimmedElement = element.Trim();
