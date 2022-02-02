@@ -4,7 +4,7 @@ Strict Transport Security initiative to simplify collect of HSTS headers.
 ## API
 Endpoint : `https://api.openbar.pernod-ricard.io/v1/hsts/analyze/?url=`**{url}**`&followRedirects=`**{true|false}**
 - **url** : Encoded format is expected (eg: https%3A%2F%2Fpernod-ricard.com)
-- **followRedirects** : Optional parameter, defaults to false
+- **followRedirects** : Optional parameter, defaults to true
 
 Example : 
 <https://api.openbar.pernod-ricard.io/v1/hsts/analyze/?url=https%3A%2F%2Fpernod-ricard.com&followRedirects=true>
@@ -12,7 +12,8 @@ Example :
 Payload returned :
 ```
 {
-  "url": "http://pernod-ricard.com/",
+  "url": "https://pernod-ricard.com/",
+  "urlAfterRedirects": "https://www.pernod-ricard.com/en",
   "grade": "C",
   "headerExists": true,
   "maxAge": 31622400,

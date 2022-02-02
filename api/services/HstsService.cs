@@ -18,12 +18,13 @@ namespace Hsts {
             _httpClientDoNotFollowRedirects = httpClientFactory.CreateClient("HttpClientDoNotFollowRedirects");
         }
 
-        public HttpClient GetHttpClient(bool followRedirects = false) {
+        public HttpClient GetHttpClient(bool followRedirects = true) {
             return followRedirects ? _httpClientFollowRedirects : _httpClientDoNotFollowRedirects;
         }
 
-        public async Task<HstsResult> AnalyzeAsync(Uri uri, bool followRedirects = false) {
+        public async Task<HstsResult> AnalyzeAsync(Uri uri, bool followRedirects = true) {
             
+            Uri redirectedUri = uri;
             HstsResult hstsResult = new HstsResult(uri) {
                 Grade = null,
                 HeaderExists = false,
@@ -41,10 +42,8 @@ namespace Hsts {
                 if (response == null ) return hstsResult;
 
                 // If we follow the redirections, we might need to update the url accordingly
-                if (followRedirects == true) {
-                    uri = response?.RequestMessage?.RequestUri ?? uri;
-                    hstsResult.Url = uri.ToString();
-                }
+                redirectedUri = response?.RequestMessage?.RequestUri ?? uri;
+                hstsResult.UrlAfterRedirects = redirectedUri.ToString();
             }
             catch(Exception) {
                 return hstsResult;
@@ -80,8 +79,8 @@ namespace Hsts {
                     }
                 }
             }
-            // PreloadStatus
-            hstsResult.PreloadStatus = await GetPreloadStatusAsync(uri);
+            // PreloadStatus using the redirected uri
+            hstsResult.PreloadStatus = await GetPreloadStatusAsync(redirectedUri);
 
             // Grade 
             hstsResult.Grade = ComputeGrade(hstsResult);

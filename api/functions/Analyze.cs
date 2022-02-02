@@ -12,7 +12,7 @@ namespace Hsts
     public class Analyze
     {
         private readonly HstsService _hstsService;
-        private readonly bool _followRedirectsDefaultValue = false;
+        private readonly bool _followRedirectsDefaultValue = true;
 
         public Analyze(HstsService hstsService)
         {

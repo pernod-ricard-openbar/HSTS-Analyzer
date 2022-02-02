@@ -7,9 +7,11 @@ namespace Hsts {
 
         public HstsResult(Uri uri) {
             Url = uri.ToString();
+            UrlAfterRedirects = Url;
         }
 
         public string Url { get; set; }
+        public string UrlAfterRedirects { get; set; }
         public string? Grade { get; set; }
         public bool HeaderExists { get; set; }
         public int? MaxAge { get; set; }
