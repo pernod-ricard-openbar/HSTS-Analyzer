@@ -7,9 +7,7 @@ Endpoint : `https://api.openbar.pernod-ricard.io/v1/hsts/analyze/?url=`**{url}**
 - **followRedirects** : Optional parameter, defaults to false
 
 Example : 
-```
 <https://api.openbar.pernod-ricard.io/v1/hsts/analyze/?url=https%3A%2F%2Fpernod-ricard.com&followRedirects=true>
-```
 
 Payload returned :
 ```
