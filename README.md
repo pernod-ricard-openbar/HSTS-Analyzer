@@ -36,3 +36,5 @@ The API returns a grade. Here is how it is calculated:
 | E      | 0 < max-age < 1 year           | no                  | any      | n/a                                     |         |
 | F      | max-age = 0 or header missing  | any                 | any      | n/a                                     |         |
 
+## OpenBar initiative
+This project falls under the bucket of the [OpenBar initiative](https://www.openbar.pernod-ricard.io/) at Pernod Ricard which aims to promote Open Source and Open Data intiatives.
