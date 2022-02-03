@@ -14,8 +14,7 @@
 </head>
 
 <body>
-    <!-- Optional JavaScript; choose one of the two! -->
-
+    <!-- Bootstrap Optional JavaScript; choose one of the two! -->
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
@@ -27,7 +26,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
     -->
 
-    <div class="container">
+    <!-- Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <!-- Axios -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <div id="app" class="container">
         <nav class="navbar navbar-light bg-light">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">
@@ -36,64 +40,95 @@
             </div>
         </nav>
         <div class="container mt-3 mb-3">
-            <form>
+            <form v-on:submit.prevent>
                 <div class="row">
-                    <div class="col-md-1"> 
+                    <div class="col-md-1">
                         <label for="urlInput" class="form-label col-md-1 col-form-label">URL:</label>
                     </div>
-                    <div class="col-md-6">    
-                        <input type="email" class="form-control" id="urlInput" placeholder="https://">
+                    <div class="col-md-6">
+                        <input v-model="url" v-on:keyup.enter="load_data()" type="text" class="form-control" id="urlInput" placeholder="https://">
                     </div>
                     <div class="col-md-1">
-                        <button type="submit" class="btn btn-primary">Analyze</button>
-                    </div>                   
+                        <button v-on:click="load_data()" type="button" class="btn btn-primary">Analyze</button>
+                    </div>
                 </div>
             </form>
         </div>
         <div class="container">
-            <div class="spinner-border text-primary mt-2" role="status">
+            <div v-if="loading" class="spinner-border text-primary mt-2" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
-            <div class="col-6">
+            <div v-if="!loading && data != null" class="col-lg-8">
                 <table class="table table-striped table-hover">
                     <tbody>
                         <tr>
                             <th>Url</th>
-                            <td>https://google.com</td>
+                            <td>{{ data.url ?? "-" }}</td>
                         </tr>
                         <tr>
                             <th>Url after redirects</th>
-                            <td>https://google.com</td>
+                            <td>{{ data.urlAfterRedirects ?? "-" }}</td>
                         </tr>
                         <tr>
                             <th>Grade</th>
-                            <td>A</td>
+                            <td>{{ data.grade ?? "-" }}</td>
                         </tr>
                         <tr>
                             <th>Header exists</th>
-                            <td>true</td>
+                            <td>{{ data.headerExists ?? "-" }}</td>
                         </tr>
                         <tr>
                             <th>Max age</th>
-                            <td>31536000</td>
+                            <td>{{ data.maxAge ?? "-" }}</td>
                         </tr>
                         <tr>
                             <th>Include sub domains</th>
-                            <td>true</td>
+                            <td>{{ data.includeSubDomains ?? "-" }}</td>
                         </tr>
                         <tr>
                             <th>Preload</th>
-                            <td>false</td>
+                            <td>{{ data.preload ?? "-" }}</td>
                         </tr>
                         <tr>
                             <th>Preload status</th>
-                            <td>unknown</td>
+                            <td>{{ data.preloadStatus ?? "-" }}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
+    <script lang="JavaScript">
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    url : 'https://pernod-ricard.io',
+                    data: null,
+                    loading: false,
+                    error: false
+                }
+            },
+            mounted() {
+            },
+            methods: {
+                load_data: function (event) {
+                    this.loading = true
+                    axios
+                        .get('https://api.openbar.pernod-ricard.io/v1/hsts/analyze/?url=' + encodeURI(this.url))
+                        .then(response => {
+                            this.data = response.data
+                        })
+                        .catch(error => {
+                            console.log(error)
+                            this.error = true
+                        })
+                        .finally(() => this.loading = false)
+                }
+            }
+        })
+    </script>
 </body>
 
 </html>
