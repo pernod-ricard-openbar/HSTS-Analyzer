@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-100">
 
 <head>
     <!-- Required meta tags -->
@@ -11,100 +11,146 @@
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
     <title>HSTS-Analyzer</title>
+
+    <style>
+        main>.container {
+            padding: 60px 15px 0;
+        }
+    </style>
+
+    <script src="https://kit.fontawesome.com/2fe63a2d2d.js" crossorigin="anonymous"></script>
+
 </head>
 
-<body>
-    <!-- Bootstrap Optional JavaScript; choose one of the two! -->
-    <!-- Option 1: Bootstrap Bundle with Popper -->
+<body class="d-flex flex-column h-100">
+
+    <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
         crossorigin="anonymous"></script>
-
-    <!-- Option 2: Separate Popper and Bootstrap JS -->
-    <!--
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
-    -->
 
     <!-- Vue.js -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
     <!-- Axios -->
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
-    <div id="app" class="container">
-        <nav class="navbar navbar-light bg-light">
+    <header>
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">
-                    HSTS-Analyzer
+                <a class="navbar-brand">
+                    OpenBar Tools
                 </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+                    aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page"
+                                href="https://www.openbar.pernod-ricard.io/">OpenBar initiative</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page"
+                                href="https://hsts-analyzer.openbar.pernod-ricard.io/">HSTS Analyzer</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link disabled" href="#">More tools to come</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </nav>
-        <div class="container mt-3 mb-3">
-            <form v-on:submit.prevent>
-                <div class="row">
-                    <div class="col-md-1">
-                        <label for="urlInput" class="form-label col-md-1 col-form-label">URL:</label>
+    </header>
+
+    <!-- Begin page content -->
+    <main class="flex-shrink-0">
+        <div class="container">
+            <h1 class="mt-5">HSTS Analyzer</h1>
+
+            <div id="app" class="container">
+                <div class="container mt-3 mb-3">
+                    <form v-on:submit.prevent>
+                        <div class="row">
+                            <div class="col-md-1">
+                                <label for="urlInput" class="form-label col-md-1 col-form-label">URL:</label>
+                            </div>
+                            <div class="col-md-6">
+                                <input v-model="url" v-on:keyup.enter="load_data()" type="text" class="form-control"
+                                    id="urlInput" placeholder="https://">
+                            </div>
+                            <div class="col-md-1">
+                                <button v-on:click="load_data()" type="button" class="btn btn-primary">Analyze</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="container">
+                    <div v-if="loading" class="spinner-border text-primary mt-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
-                    <div class="col-md-6">
-                        <input v-model="url" v-on:keyup.enter="load_data()" type="text" class="form-control" id="urlInput" placeholder="https://">
-                    </div>
-                    <div class="col-md-1">
-                        <button v-on:click="load_data()" type="button" class="btn btn-primary">Analyze</button>
+                    <div v-if="!loading && data != null" class="col-lg-8">
+                        <table class="table table-striped table-hover">
+                            <tbody>
+                                <tr>
+                                    <th>Url</th>
+                                    <td>{{ data.url ?? "-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Url after redirects</th>
+                                    <td>{{ data.urlAfterRedirects ?? "-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Grade</th>
+                                    <td>{{ data.grade ?? "-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Header exists</th>
+                                    <td>{{ data.headerExists ?? "-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Max age</th>
+                                    <td>{{ data.maxAge ?? "-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Include sub domains</th>
+                                    <td>{{ data.includeSubDomains ?? "-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Preload</th>
+                                    <td>{{ data.preload ?? "-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Preload status</th>
+                                    <td>{{ data.preloadStatus ?? "-" }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </form>
+            </div>
         </div>
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-dark">
         <div class="container">
-            <div v-if="loading" class="spinner-border text-primary mt-2" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <div v-if="!loading && data != null" class="col-lg-8">
-                <table class="table table-striped table-hover">
-                    <tbody>
-                        <tr>
-                            <th>Url</th>
-                            <td>{{ data.url ?? "-" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Url after redirects</th>
-                            <td>{{ data.urlAfterRedirects ?? "-" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Grade</th>
-                            <td>{{ data.grade ?? "-" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Header exists</th>
-                            <td>{{ data.headerExists ?? "-" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Max age</th>
-                            <td>{{ data.maxAge ?? "-" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Include sub domains</th>
-                            <td>{{ data.includeSubDomains ?? "-" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Preload</th>
-                            <td>{{ data.preload ?? "-" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Preload status</th>
-                            <td>{{ data.preloadStatus ?? "-" }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <span class="text-muted">This open source tool comes with no guarantee, and is hosted here for fair
+                use.<br />
+                <i class="fab fa-github"></i> Sources on <a href="https://github.com/pernod-ricard/HSTS-Analyzer"
+                    target="_blank" rel="noopener noreferrer">GitHub</a><br>
+                <i class="fab fa-medium"></i> Follow us on <a href="https://medium.com/pernod-ricard-tech"
+                    target="_blank" rel="noopener noreferrer">Medium</a>
+            </span>
         </div>
-    </div>
+    </footer>
 
     <script lang="JavaScript">
         new Vue({
             el: '#app',
             data() {
                 return {
-                    url : 'https://pernod-ricard.io',
+                    url: 'https://pernod-ricard.io',
                     data: null,
                     loading: false,
                     error: false
